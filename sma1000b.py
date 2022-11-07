@@ -27,14 +27,16 @@ class SMA1000B:
         self.state = self.get_state()
 
     def get_frequency(self):
-        return float(self.instrument.query("SOUR1:FREQ?"))
+        self.freq = float(self.instrument.query("SOUR1:FREQ?"))
+        return self.freq
 
     def set_frequency(self, freq):
         self.freq = freq
         self.instrument.write(f"SOUR1:FREQ {freq}")
 
     def get_power(self):
-        return np.round(float(self.instrument.query("SOUR1:POW?")), 6)
+        self.pow = np.round(float(self.instrument.query("SOUR1:POW?")), 6)
+        return self.pow
 
     def set_power(self, pow):
         assert 1e-6 < pow < 14.11
@@ -109,8 +111,8 @@ class SMA1000B:
         self.instrument.write(f"SOUR1:FREQ:MODE LIST")
         self.instrument.write("SOUR1:LIST:TRIG:EXEC")
         # reset pause tracking
-        self.instrument.write(f"SOUR1:LIST:IND:START 0")
-        self.pause_idx = None
+        # self.instrument.write(f"SOUR1:LIST:IND:START 0")
+        # self.pause_idx = None
 
     def start_range_sweep(self):
         self.instrument.write(f"SOUR1:SWE:POW:MODE AUTO")
@@ -123,8 +125,11 @@ class SMA1000B:
         self.instrument.write(f"SOUR1:SWE:POW:MODE MANUAL")
 
         # pause tracking
-        self.pause_idx = self.instrument.query("SOUR1:LIST:IND?").strip()
-        self.instrument.write(f"SOUR1:LIST:IND:START {self.pause_idx}")
+        # self.pause_idx = self.instrument.query("SOUR1:LIST:IND?").strip()
+        # self.instrument.write(f"SOUR1:LIST:IND:START {self.pause_idx}")
+
+    def get_list_index(self):
+        return int(self.instrument.query("SOUR1:LIST:IND?"))
 
     def get_power_limit(self):
         return float(self.instrument.query("SOUR1:POW:LIM?"))
